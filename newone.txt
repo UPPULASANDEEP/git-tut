@@ -1,0 +1,177 @@
+sonarcube ------
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y openjdk-21-jdk
+java -version
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" /etc/apt/sources.list.d/pgdg.list'
+wget -q https://www.postgresql.org/media/keys/ACCC4CF8.asc -O - | sudo apt-key add -
+sudo apt install postgresql postgresql-contrib -y
+sudo systemctl enable postgresql
+sudo systemctl start postgresql
+sudo systemctl status postgresql
+psql --version
+sudo -i -u postgres
+createuser ddsonar
+psql
+ALTER USER ddsonar WITH ENCRYPTED password 'mwd#2%#!!#%rgs';
+CREATE DATABASE ddsonarqube OWNER ddsonar;
+GRANT ALL PRIVILEGES ON DATABASE ddsonarqube to ddsonar;
+\l
+\du
+\q
+exit
+sudo apt install zip -y
+sudo wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-26.2.0.119303.zip
+
+sudo unzip sonarqube-26.2.0.119303.zip
+sudo mv sonarqube-26.2.0.119303 sonarqube
+sudo mv sonarqube /opt/
+sudo groupadd ddsonar
+sudo useradd -d /opt/sonarqube -g ddsonar ddsonar
+sudo chown ddsonar:ddsonar /opt/sonarqube -R
+sudo nano /opt/sonarqube/conf/sonar.properties
+#sonar.jdbc.username=
+
+#sonar.jdbc.password=
+
+b) Uncomment the lines, and add the database user and Database password you created in Step 4 (xi and xii). For me, it’s:
+
+sonar.jdbc.username=ddsonar
+
+sonar.jdbc.password=mwd#2%#!!#%rgs
+
+c) Below these two lines, add the following line of code.
+
+sonar.jdbc.url=jdbc:postgresql://localhost:5432/ddsonarqube
+
+sudo nano /opt/sonarqube/bin/linux-x86-64/sonar.sh
+a) Add the following line
+RUN_AS_USER=ddsonar
+sudo nano /etc/systemd/system/sonar.service
+
+[Unit]
+Description=SonarQube service
+After=syslog.target network.target
+[Service]
+Type=forking
+ExecStart=/opt/sonarqube/bin/linux-x86-64/sonar.sh start
+ExecStop=/opt/sonarqube/bin/linux-x86-64/sonar.sh stop
+User=ddsonar
+Group=ddsonar
+Restart=always
+LimitNOFILE=65536
+LimitNPROC=4096
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl enable sonar
+sudo systemctl start sonar
+sudo systemctl status sonar
+sudo nano /etc/sysctl.conf
+
+vm.max_map_count=262144
+fs.file-max=65536
+ulimit -n 65536
+ulimit -u 4096
+
+sudo reboot
+For example, http://IP:9000
+-----------------------------------------------------------------------------------------------------------
+jenkins
+
+#!/bin/bash
+# USE UBUNTU20.04 - INSTANCE: 2GB RAM + 2VCPU MIN - WILL ONLY WORK
+sudo apt update -y
+#sudo apt install openjdk-17-jdk -y
+sudo apt install fontconfig openjdk-21-jre
+sudo apt update -y
+sudo apt install maven -y
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt update
+sudo apt install jenkins
+cat /var/lib/jenkins/secrets/initialAdminPassword
+#chmod 777 jenkins.sh
+#./jenkins.sh
+
+ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+http://:8080
+
+
+pipeline {
+    agent any
+    tools {
+        maven 'Maven'
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'master', url: 'https://github.com/Msocial123/EcommerceApp.git'
+            }
+        }
+        stage('Check Project Structure') {
+            steps {
+                sh 'ls -la'
+            }
+        }
+        stage('Compile') {
+            steps {
+                dir('EcommerceApp') {  
+                    sh 'mvn clean compile'
+                }
+            }
+        } 
+        stage('Test') {
+            steps {
+                dir('EcommerceApp') {
+                    sh 'mvn test'
+                }
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                dir('EcommerceApp') {
+                    withSonarQubeEnv('SonarQube') {
+                        sh 'mvn sonar:sonar'
+                    }
+                }
+            }
+        }
+        stage('Package') {
+            steps {
+                dir('EcommerceApp') {
+                    sh 'mvn package'
+                }
+            }
+        }
+}
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+tomcat 
+
+sudo apt update
+sudo apt install openjdk-21-jdk -y
+java -version
+cd /opt
+sudo wget https://downloads.apache.org/tomcat/tomcat-11/v11.0.18/bin/apache-tomcat-11.0.18.tar.gz
+sudo tar -xvzf apache-tomcat-11.0.18.tar.gz
+sudo mv apache-tomcat-11.0.18 tomcat
+sudo chmod -R +x /opt/tomcat/bin/*.sh
+cd /opt/tomcat/bin
+sudo ./startup.sh
+
+In AWS EC2 Security Group → Inbound → Add:
+Type: Custom TCP
+Port: 8080
+Source: 0.0.0.0/0
+
+http://<YOUR_EC2_PUBLIC_IP>:8080
+
+
+
+
+
+

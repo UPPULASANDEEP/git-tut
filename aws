@@ -1,6 +1,6 @@
 >> Sudo su
 SonarQube
->> sudo apt update
+>> 
 >> sudo apt upgrade -y
 >> sudo apt install -y openjdk-21-jdk
 >> java -version

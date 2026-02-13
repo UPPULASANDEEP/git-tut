@@ -34,7 +34,8 @@ SonarQube
 >> sudo nano /opt/sonarqube/bin/linux-x86-64/sonar.sh
 >> add this RUN_AS_USER=ddsonar
 >> sudo nano /etc/systemd/system/sonar.service
->> add this [Unit]
+>> add this
+[Unit]
 Description=SonarQube service
 After=syslog.target network.target
 [Service]
@@ -48,18 +49,24 @@ LimitNOFILE=65536
 LimitNPROC=4096
 [Install]
 WantedBy=multi-user.target
+
 >> sudo systemctl enable sonar
 >> sudo systemctl start sonar
 >> sudo systemctl status sonar
 >> sudo nano /etc/sysctl.conf
->> add this vm.max_map_count=262144
+>> add this
+
+vm.max_map_count=262144
 fs.file-max=65536
 ulimit -n 65536
 ulimit -u 4096
+
 >> sudo reboot
 >> https://IP:9000
+
 >> Jenkins install commands
->> #!/bin/bash
+>> 
+#!/bin/bash
 # USE UBUNTU20.04 - INSTANCE: 2GB RAM + 2VCPU MIN - WILL ONLY WORK
 sudo apt update -y
 #sudo apt install openjdk-17-jdk -y
@@ -77,6 +84,8 @@ cat /var/lib/jenkins/secrets/initialAdminPassword
 #chmod 777 jenkins.sh
 #./jenkins.sh
 
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
 >> Tomcat Commanads
 >> sudo apt update
 >> sudo apt install tomcat10-admin -y
@@ -87,7 +96,8 @@ cat /var/lib/jenkins/secrets/initialAdminPassword
 <user username="admin" password="admin123" roles="manager-gui,manager-script,admin-gui"/>
 >> sudo nano /etc/tomcat10/server.xml
 >> port change 8080 to 8081
->> sudo systemctl restart tomcat10
+>> sudo systemctl restart tomcat10 
+
 >> new method
 >> sudo apt update -y
 >> sudo apt upgrade -y
@@ -257,6 +267,7 @@ pipeline {
 }
 
 }
+
 Then apply and save 
 After that in manage Jenkins -> system -> sonarqube add it -> name it SonarQubeServer -> url like http://56.228.14.138:9000 then add secret key 
 Then build it .

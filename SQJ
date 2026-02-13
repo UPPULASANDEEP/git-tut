@@ -1,0 +1,34 @@
+SonarQube Tool and configuration With Jenkins
+1. Open the browser and navigate to http://public:9000
+2. Log in to sonarqube server with System Administrator credentials (admin/admin)
+1. Change the Old password with a New one.
+Log in with username admin and password 
+ Go to Administration  Security  Users  Tokens
+ Click on token and generate a token with name: Jenkins as shown below:
+Copy the generated token and note it down. It will be used in Jenkins for Sonar
+authentication
+
+Step 2: Installing and configuring SonarQube plugin in Jenk
+ Go to Manage Jenkins  Manage Plugins  Available  search for SonarQube Scanner
+Click on install without restart
+
+ Go to Jenkins dashboard  Manage Jenkins  Manage Credenti
+ Click on Adding Some Credentials 
+ In Dropdown click on Secret Text
+ Add Paste the generated token  name the variable Add Some decription
+Click on System on Manage Jenkins
+ Add Generated Token Name  give default location of SonarQube  select the SonarQube
+Authentication from dropdown Apply Save
+
+
+Create a New Pipleine for project
+Name the project  Click on pipleine to be get addedclick on ok
+Add Project Description  click on checkbox on GitHub  Add GitHub Repository
+Write a pipline script for the project  click on Apply and save
+
+Click on Apply and Save
+ Build the job
+ On successful completion of the build from the console output you can see the project in the
+sonarqube server by clicking the link as shown in the output
+
+Refresh SonarQube  click on Project
